@@ -15,35 +15,43 @@ fs.readFile("advent19.data", 'utf8', function(err, data) {
     // Load the find/replace pairs
     var matchReplacement = lines[index].match(/([A-Za-z]{1,2})\s=>\s([A-Za-z]{1,})/)
     if(matchReplacement) {
-      replacements.push({find:matchReplacement[1], replace:matchReplacement[2]});
+      replacements.push({find:matchReplacement[1], replace:matchReplacement[2].match(/([A-Z]{1}[a-z]{0,1})/g)});
     } else {
       // Load the starting input string
-      var matchInput = lines[index].match(/^([A-Za-z]{1,})$/)
+      var matchInput = lines[index].match(/^([A-Za-z]{1,})$/);
       if(matchInput) {
-        input = matchInput[0];
+        input = matchInput[0].match(/([A-Z]{1}[a-z]{0,1})/g);
       }
     }    
   }
   
+  var getIndexOfValue = function(value) {
+    return (previous, current, index) => current===value ? previous.concat([index]) : previous;
+  };
+
+  var arraysEqual = function(value) {
+    return (previous, current, index) => !previous ? false: (current===value[index] ? true && previous : false);
+  };
+
+  var containsArray = function(value) {
+    return (previous, current, index) => previous ? true : (current.reduce(arraysEqual(value), current.length == value.length) ? true : previous);
+  };
+  
   var results = [];
-  // For each find/replace pair
+
+  // for each find/replace pair
   replacements.forEach(function(replacement){
-
-    // Replace each distinct string one at a time with the replacement string
-    var regexp = new RegExp(replacement.find, 'g');
-    var matchCount = (input.match(regexp) || []).length;
-    for(var index = 1; index <= matchCount; index++) {
-      // Replace the nth occurance
-      var i = 0;
-      var result = input.replace(regexp, function(match, capture) {
-        i++;
-        return (i===index) ? replacement.replace : replacement.find;
-      });
-      if(results.indexOf(result)===-1) {
-        results.push(result);
+    // for each occurance of 'find' within the input
+    input.reduce(getIndexOfValue(replacement.find), []).forEach(function(index) {
+      // copy the input
+      var copy = input.slice(0);
+      // perform the find/replace substitution
+      copy = copy.slice(0, index).concat(replacement.replace).concat(copy.slice(index+1));
+      // if the result is unique in our result set, then add it 
+      if(!results.reduce(containsArray(copy), false)) {
+        results.push(copy);
       }
-    }
-
+    });
   });
   
   console.log('count', results.length);

@@ -51,6 +51,7 @@ fs.readFile("advent18.data", 'utf8', function(err, data) {
         // Apply queued changes
         while(queue.length>0) {
             var change = queue.pop();
+            if(!)
             grid[change.x][change.y] = change.value;
         }
         
