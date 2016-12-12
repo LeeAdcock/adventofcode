@@ -39,5 +39,7 @@ var solve = function(input) {
     }
   });
   
-  return {'firstVisitedTwice': firstVisitedTwice, 'distanceFromStart': Math.abs(x)+Math.abs(y)};
+  return {
+    'firstVisitedTwice': firstVisitedTwice, 
+    'distanceFromStart': Math.abs(x)+Math.abs(y)};
 }
