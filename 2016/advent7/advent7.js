@@ -15,33 +15,14 @@ var supportsTls = function(input) {
 }
 
 var supportsSsl = function(input) {
-  
-  var reformatted = '';
-  
-  // Get the combined text outside the brackets
-  var outsideBracketsRegEx = new RegExp("(?:^|\\])(\\w*)","g");
-  var outsideBrackets;
-  while (outsideBrackets = outsideBracketsRegEx.exec(input)) {
-    reformatted+=outsideBrackets[1]+' ';
-  }
-  
-  // Add seperator
-  reformatted+='|';
-
-  // Get the combined text inside the brackets
-  var insideBracketsRegEx = new RegExp("(?:\\[)(\\w*)","g");
-  var insideBrackets;
-  while (insideBrackets = insideBracketsRegEx.exec(input)) {
-    reformatted+=insideBrackets[1]+' ';
-  }
+  // Reformat the input to be <content inside brackes>|<content outside brackets>
+  var reformated="|";
+  input.split(/[\[\]]{1}/).forEach(function(segment, index) {
+    reformated = (index%2==1) ? segment+" "+reformated : reformated+" "+segment;
+  });
 
   // Is the expected text format "ABA | BAB" present?
-  var matches = reformatted.match(/(\w)(?!\1)(\w)(\1)(?:[\w\s]*?)(?:\|)(?:[\w\s]*?)(\2)(\1)(\2)/);
-  if(matches) {
-    return true;
-  } else {
-    return false;
-  }
+  return Array.isArray(reformated.match(/(\w)(?!\1)(\w)(\1)(?:[\w\s]*?)(?:\|)(?:[\w\s]*?)(\2)(\1)(\2)/));
 }
 
 
